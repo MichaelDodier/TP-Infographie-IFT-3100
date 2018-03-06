@@ -9,20 +9,24 @@ void ofApp::setup(){
 	Circle.addListener(this, &ofApp::CircleButtonPressed);
 	Rectangle.addListener(this, &ofApp::RectangleButtonPressed);
 	Triangle.addListener(this, &ofApp::TriangleButtonPressed);
+	Draw.addListener(this, &ofApp::DrawButtonPressed);
 	Line.addListener(this, &ofApp::LineButtonPressed);
 
 	//Initiallisation du GUI
 	gui.setup();
-	gui.add(Circle.setup("Circle"));
+	gui.add(Circle.setup("Cercle"));
 	gui.add(Rectangle.setup("Rectangle"));
 	gui.add(Triangle.setup("Triangle"));
-	gui.add(Line.setup("Line"));
+	gui.add(Draw.setup("Dessin Libre"));
+	gui.add(Line.setup("Ligne"));
 
 	//Initialisation du FrameBuffer
 	fbo.allocate(ofGetWidth(), ofGetHeight());
 	fbo.begin();
 	ofClear(255, 255, 255);
 	fbo.end();
+
+	is_mouse_button_pressed = false;
 }
 
 //--------------------------------------------------------------
@@ -38,8 +42,12 @@ void ofApp::RectangleButtonPressed() {
 	polygon = 3;
 }
 
-void ofApp::LineButtonPressed() {
+void ofApp::DrawButtonPressed() {
 	polygon = 4;
+}
+
+void ofApp::LineButtonPressed() {
+	polygon = 5;
 }
 void ofApp::exit(){
 }
@@ -53,15 +61,34 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+	//Affiche le GUI
 	gui.draw();
+
+	//Afficher la zone de sélection
+	if (is_mouse_button_pressed)
+	{
+		ofSetColor(255);
+		ofSetLineWidth(3);
+		ofNoFill();
+
+		draw_zone(
+			mouse_press_x,
+			mouse_press_y,
+			ofGetMouseX(),
+			ofGetMouseY());
+	}
+
+	//Affiche le FrameBuffer
 	fbo.draw(0, 0);
 
+	//Dessine une ligne libre si elle existe 
 	if (nPts > 1) {
 		for (int i = 0; i < nPts - 1; i++) {
 			ofLine(pts[i].x, pts[i].y, pts[i + 1].x, pts[i + 1].y);
 		}
 	}
 
+	//Affiche le curseur
 	draw_cursor(ofGetMouseX(), ofGetMouseY());
 }
 
@@ -91,36 +118,54 @@ void ofApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-	fbo.begin();
-	switch (polygon) {
-	case 1:
-		ofFill();
-		ofSetColor(0, 0, 0);
-		ofCircle(x, y, 52);
-		ofSetColor(255, 0, 0);
-		ofCircle(x, y, 50);
-		break;
-	case 2:
-		ofFill();
-		ofSetColor(0, 0, 0);
-		ofTriangle(x - 42, y + 42, x + 42, y + 42, x, y - 42);
-		ofSetColor(255, 0, 0);
-		ofTriangle(x - 40, y + 40, x + 40, y + 40, x, y - 40);
-		break;
-	case 3:
-		ofFill();
-		ofSetColor(0, 0, 0);
-		ofDrawRectangle(x-101, y-51, 202, 102);
-		ofSetColor(255, 0, 0);
-		ofDrawRectangle(x-100, y-50, 200, 100);
-		break;
-	}
-	fbo.end();
+	//Garde en mémoire la position du clic d'origine
+	mouse_press_x = x;
+	mouse_press_y = y;
+	is_mouse_button_pressed = true;
+
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
-	
+	is_mouse_button_pressed = false;
+	float diameter_x = ofGetMouseX() - mouse_press_x;
+	float diameter_y = ofGetMouseY() - mouse_press_y;
+
+	//Dessine une forme selon l'option choisi
+	fbo.begin();
+	switch (polygon) {
+	//Dessine une élipse
+	case 1:
+		ofFill();
+		ofSetColor(0, 0, 0);
+		ofDrawEllipse(mouse_press_x + diameter_x / 2.0f, mouse_press_y + diameter_y / 2.0f, diameter_x + 2, diameter_y + 2);
+		ofSetColor(255, 0, 0);
+		ofDrawEllipse(mouse_press_x + diameter_x / 2.0f, mouse_press_y + diameter_y / 2.0f, diameter_x, diameter_y);
+		break;
+	//Dessine un triangle
+	case 2:
+		ofFill();
+		ofSetColor(0, 0, 0);
+		ofTriangle(mouse_press_x -1, mouse_press_y - 1, ofGetMouseX() + 1, mouse_press_y +1, mouse_press_x + (diameter_x / 2), ofGetMouseY() + 1);
+		ofSetColor(255, 0, 0);
+		ofTriangle(mouse_press_x, mouse_press_y, ofGetMouseX(), mouse_press_y, mouse_press_x + (diameter_x/2), ofGetMouseY());
+		break;
+	//Dessine un rectangle
+	case 3:
+		ofFill();
+		ofSetColor(0, 0, 0);
+		ofDrawRectangle(mouse_press_x, mouse_press_y, diameter_x + 1, diameter_y + 1);
+		ofSetColor(255, 0, 0);
+		ofDrawRectangle(mouse_press_x, mouse_press_y, diameter_x, diameter_y);
+		break;
+	//Dessine une ligne
+	case 5:
+		ofFill();
+		ofSetColor(255, 0, 0);
+		ofDrawLine(mouse_press_x, mouse_press_y, ofGetMouseX(), ofGetMouseY());
+		break;
+	}
+	fbo.end();
 }
 
 //--------------------------------------------------------------
@@ -152,18 +197,22 @@ void ofApp::draw_cursor(float x, float y) const
 {	
 	ofNoFill();
 	switch (polygon) {
+	//Curseur de l'elipse
 	case 1:
 		ofHideCursor();
 		ofCircle(x, y, 10);
 		break;
+	//Curseur du triangle 
 	case 2:
 		ofHideCursor();
 		ofTriangle(x - 10, y + 10, x + 10, y + 10, x, y - 10);
 		break;
+	//Curseur du rectangle
 	case 3:
 		ofHideCursor();
 		ofDrawRectangle(x - 10, y - 7, 20, 14);
 		break;
+	//Curseur du dessin libre
 	case 4:
 		ofHideCursor();
 		ofDrawLine(x + 5, y, x + 15, y);
@@ -171,5 +220,21 @@ void ofApp::draw_cursor(float x, float y) const
 		ofDrawLine(x, y + 5, x, y + 15);
 		ofDrawLine(x, y - 5, x, y - 15);
 		break;
+	//Curseur de la ligne
+	case 5:
+		ofHideCursor();
+		ofDrawLine(x - 5, y -5, x + 5, y +5);
+		break;
+	}
+}
+
+void ofApp::draw_zone(float x1, float y1, float x2, float y2) const
+{
+	if (polygon != 4)
+	{
+		float x2_clamp = min(max(0.0f, x2), (float)ofGetWidth());
+		float y2_clamp = min(max(0.0f, y2), (float)ofGetHeight());
+
+		ofDrawRectangle(x1, y1, x2_clamp - x1, y2_clamp - y1);
 	}
 }

@@ -9,7 +9,6 @@ public:
 	void setup();
 	void update();
 	void draw();
-	
 	void exit();
 
 	void keyPressed(int key);
@@ -24,25 +23,29 @@ public:
 	void dragEvent(ofDragInfo dragInfo);
 	void gotMessage(ofMessage msg);		
 
-	bool bHide;
-
 	ofxPanel gui;
 	ofxButton Circle;
 	ofxButton Rectangle;
 	ofxButton Triangle;
+	ofxButton Draw;
 	ofxButton Line;
 
 	void CircleButtonPressed();
 	void TriangleButtonPressed();
 	void RectangleButtonPressed();
 	void LineButtonPressed();
+	void DrawButtonPressed();
 
 	int polygon = 0;
+	int nPts;
+	int mouse_press_x;
+	int mouse_press_y;
+	bool is_mouse_button_pressed;
 
 	ofFbo fbo;
 	ofPoint pts[3000];
-	int nPts;
 
 	void draw_cursor(float x, float y) const;
+	void ofApp::draw_zone(float x1, float y1, float x2, float y2) const;
 };
 
