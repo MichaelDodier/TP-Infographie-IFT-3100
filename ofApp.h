@@ -24,7 +24,9 @@ public:
 	void gotMessage(ofMessage msg);		
 
 	ofxPanel gui;
+	ofxButton Elipse;
 	ofxButton Circle;
+	ofxButton Carre;
 	ofxButton Rectangle;
 	ofxButton Triangle;
 	ofxButton Draw;
@@ -32,8 +34,10 @@ public:
 	ofxIntSlider LineThickness;
 	ofxColorSlider backgroundColor;
 
+	void ElipseButtonPressed();
 	void CircleButtonPressed();
 	void TriangleButtonPressed();
+	void CarreButtonPressed();
 	void RectangleButtonPressed();
 	void LineButtonPressed();
 	void DrawButtonPressed();

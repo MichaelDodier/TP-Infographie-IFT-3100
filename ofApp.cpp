@@ -6,7 +6,9 @@ void ofApp::setup(){
 	ofSetCircleResolution(60);
 
 	//Création des eventsListener
+	Elipse.addListener(this, &ofApp::ElipseButtonPressed);
 	Circle.addListener(this, &ofApp::CircleButtonPressed);
+	Carre.addListener(this, &ofApp::CarreButtonPressed);
 	Rectangle.addListener(this, &ofApp::RectangleButtonPressed);
 	Triangle.addListener(this, &ofApp::TriangleButtonPressed);
 	Draw.addListener(this, &ofApp::DrawButtonPressed);
@@ -15,7 +17,9 @@ void ofApp::setup(){
 
 	//Initiallisation du GUI
 	gui.setup();
+	gui.add(Elipse.setup("Elipse"));
 	gui.add(Circle.setup("Cercle"));
+	gui.add(Carre.setup("Carre"));
 	gui.add(Rectangle.setup("Rectangle"));
 	gui.add(Triangle.setup("Triangle"));
 	gui.add(Draw.setup("Dessin Libre"));
@@ -33,7 +37,7 @@ void ofApp::setup(){
 }
 
 //--------------------------------------------------------------
-void ofApp::CircleButtonPressed() {
+void ofApp::ElipseButtonPressed() {
 	polygon = 1;
 }
 
@@ -51,6 +55,14 @@ void ofApp::DrawButtonPressed() {
 
 void ofApp::LineButtonPressed() {
 	polygon = 5;
+}
+
+void ofApp::CarreButtonPressed() {
+	polygon = 6;
+}
+
+void ofApp::CircleButtonPressed() {
+	polygon = 7;
 }
 
 void ofApp::LineThicknessChanged(int &lineThickness) {
@@ -142,6 +154,7 @@ void ofApp::mouseReleased(int x, int y, int button){
 	is_mouse_button_pressed = false;
 	float diameter_x = ofGetMouseX() - mouse_press_x;
 	float diameter_y = ofGetMouseY() - mouse_press_y;
+	int minValue = min(diameter_x, diameter_y);
 	ofSetLineWidth(LineThickness);
 
 	//Dessine une forme selon l'option choisi
@@ -186,7 +199,30 @@ void ofApp::mouseReleased(int x, int y, int button){
 		ofSetColor(255, 0, 0);
 		ofDrawLine(mouse_press_x, mouse_press_y, ofGetMouseX(), ofGetMouseY());
 		break;
+	//Dessine un carre
+	case 6:
+		ofFill();
+		ofSetColor(255, 0, 0);
+		ofDrawRectangle(mouse_press_x, mouse_press_y, minValue, minValue);
+
+		//Ligne de contour
+		ofNoFill();
+		ofSetColor(0, 0, 0);
+		ofDrawRectangle(mouse_press_x, mouse_press_y, minValue, minValue);
+		break;
+	//Dessine un cercle
+	case 7:
+		ofFill();
+		ofSetColor(255, 0, 0);
+		ofDrawEllipse(mouse_press_x + diameter_x / 2.0f, mouse_press_y + diameter_y / 2.0f, minValue, minValue);
+
+		//Ligne de contour
+		ofNoFill();
+		ofSetColor(0, 0, 0);
+		ofDrawEllipse(mouse_press_x + diameter_x / 2.0f, mouse_press_y + diameter_y / 2.0f, minValue, minValue);
+		break;
 	}
+
 	fbo.end();
 }
 
@@ -222,7 +258,7 @@ void ofApp::draw_cursor(float x, float y) const
 	//Curseur de l'elipse
 	case 1:
 		ofHideCursor();
-		ofCircle(x, y, 10);
+		ofDrawEllipse(x, y, 20, 14);
 		break;
 	//Curseur du triangle 
 	case 2:
@@ -246,6 +282,16 @@ void ofApp::draw_cursor(float x, float y) const
 	case 5:
 		ofHideCursor();
 		ofDrawLine(x - 5, y -5, x + 5, y +5);
+		break;
+	//Curseur du carre
+	case 6:
+		ofHideCursor();
+		ofDrawRectangle(x - 10, y - 10, 20, 20);
+		break;
+	//Curseur du cercle
+	case 7:
+		ofHideCursor();
+		ofCircle(x, y, 10);
 		break;
 	}
 }
