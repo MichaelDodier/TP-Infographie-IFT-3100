@@ -42,5 +42,7 @@ public:
 	ofFbo fbo;
 	ofPoint pts[3000];
 	int nPts;
+
+	void draw_cursor(float x, float y) const;
 };
 
