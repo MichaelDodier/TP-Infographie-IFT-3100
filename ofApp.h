@@ -30,6 +30,7 @@ public:
 	ofxButton Draw;
 	ofxButton Line;
 	ofxIntSlider LineThickness;
+	ofxColorSlider backgroundColor;
 
 	void CircleButtonPressed();
 	void TriangleButtonPressed();

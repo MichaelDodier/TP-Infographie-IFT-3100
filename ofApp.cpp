@@ -21,6 +21,7 @@ void ofApp::setup(){
 	gui.add(Draw.setup("Dessin Libre"));
 	gui.add(Line.setup("Ligne"));
 	gui.add(LineThickness.setup("Ep. lignes contour", 1, 1, 10));
+	gui.add(backgroundColor.setup("Couleur Arriere Plan", ofColor(220, 220, 220), ofColor(0, 0), ofColor(255, 255)));
 
 	//Initialisation du FrameBuffer
 	fbo.allocate(ofGetWidth(), ofGetHeight());
@@ -71,6 +72,9 @@ void ofApp::update(){
 void ofApp::draw(){
 	//Affiche le GUI
 	gui.draw();
+
+	//Change la couleur de Background
+	ofSetBackgroundColor(backgroundColor);
 
 	//Afficher la zone de sélection
 	if (is_mouse_button_pressed)
