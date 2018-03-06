@@ -11,6 +11,7 @@ void ofApp::setup(){
 	Triangle.addListener(this, &ofApp::TriangleButtonPressed);
 	Draw.addListener(this, &ofApp::DrawButtonPressed);
 	Line.addListener(this, &ofApp::LineButtonPressed);
+	LineThickness.addListener(this, &ofApp::LineThicknessChanged);
 
 	//Initiallisation du GUI
 	gui.setup();
@@ -19,6 +20,7 @@ void ofApp::setup(){
 	gui.add(Triangle.setup("Triangle"));
 	gui.add(Draw.setup("Dessin Libre"));
 	gui.add(Line.setup("Ligne"));
+	gui.add(LineThickness.setup("Ep. lignes contour", 1, 1, 10));
 
 	//Initialisation du FrameBuffer
 	fbo.allocate(ofGetWidth(), ofGetHeight());
@@ -49,6 +51,11 @@ void ofApp::DrawButtonPressed() {
 void ofApp::LineButtonPressed() {
 	polygon = 5;
 }
+
+void ofApp::LineThicknessChanged(int &lineThickness) {
+	ofSetLineWidth(lineThickness);
+}
+
 void ofApp::exit(){
 }
 
@@ -57,6 +64,7 @@ void ofApp::exit(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
+	ofSetLineWidth(LineThickness);
 }
 
 //--------------------------------------------------------------
@@ -130,6 +138,7 @@ void ofApp::mouseReleased(int x, int y, int button){
 	is_mouse_button_pressed = false;
 	float diameter_x = ofGetMouseX() - mouse_press_x;
 	float diameter_y = ofGetMouseY() - mouse_press_y;
+	ofSetLineWidth(LineThickness);
 
 	//Dessine une forme selon l'option choisi
 	fbo.begin();
@@ -137,25 +146,34 @@ void ofApp::mouseReleased(int x, int y, int button){
 	//Dessine une élipse
 	case 1:
 		ofFill();
-		ofSetColor(0, 0, 0);
-		ofDrawEllipse(mouse_press_x + diameter_x / 2.0f, mouse_press_y + diameter_y / 2.0f, diameter_x + 2, diameter_y + 2);
 		ofSetColor(255, 0, 0);
+		ofDrawEllipse(mouse_press_x + diameter_x / 2.0f, mouse_press_y + diameter_y / 2.0f, diameter_x, diameter_y);
+
+		//Ligne de contour
+		ofNoFill();
+		ofSetColor(0, 0, 0);
 		ofDrawEllipse(mouse_press_x + diameter_x / 2.0f, mouse_press_y + diameter_y / 2.0f, diameter_x, diameter_y);
 		break;
 	//Dessine un triangle
 	case 2:
 		ofFill();
-		ofSetColor(0, 0, 0);
-		ofTriangle(mouse_press_x -1, mouse_press_y - 1, ofGetMouseX() + 1, mouse_press_y +1, mouse_press_x + (diameter_x / 2), ofGetMouseY() + 1);
 		ofSetColor(255, 0, 0);
 		ofTriangle(mouse_press_x, mouse_press_y, ofGetMouseX(), mouse_press_y, mouse_press_x + (diameter_x/2), ofGetMouseY());
+
+		//Ligne de contour
+		ofNoFill();
+		ofSetColor(0, 0, 0);
+		ofTriangle(mouse_press_x, mouse_press_y, ofGetMouseX(), mouse_press_y, mouse_press_x + (diameter_x / 2), ofGetMouseY());
 		break;
 	//Dessine un rectangle
 	case 3:
 		ofFill();
-		ofSetColor(0, 0, 0);
-		ofDrawRectangle(mouse_press_x, mouse_press_y, diameter_x + 1, diameter_y + 1);
 		ofSetColor(255, 0, 0);
+		ofDrawRectangle(mouse_press_x, mouse_press_y, diameter_x, diameter_y);
+
+		//Ligne de contour
+		ofNoFill();
+		ofSetColor(0, 0, 0);
 		ofDrawRectangle(mouse_press_x, mouse_press_y, diameter_x, diameter_y);
 		break;
 	//Dessine une ligne

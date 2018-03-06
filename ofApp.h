@@ -29,12 +29,14 @@ public:
 	ofxButton Triangle;
 	ofxButton Draw;
 	ofxButton Line;
+	ofxIntSlider LineThickness;
 
 	void CircleButtonPressed();
 	void TriangleButtonPressed();
 	void RectangleButtonPressed();
 	void LineButtonPressed();
 	void DrawButtonPressed();
+	void LineThicknessChanged(int & LineThickness);
 
 	int polygon = 0;
 	int nPts;
@@ -46,6 +48,6 @@ public:
 	ofPoint pts[3000];
 
 	void draw_cursor(float x, float y) const;
-	void ofApp::draw_zone(float x1, float y1, float x2, float y2) const;
+	void draw_zone(float x1, float y1, float x2, float y2) const;
 };
 
