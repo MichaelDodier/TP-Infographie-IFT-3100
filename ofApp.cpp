@@ -26,6 +26,8 @@ void ofApp::setup(){
 	gui.add(Line.setup("Ligne"));
 	gui.add(LineThickness.setup("Ep. lignes contour", 1, 1, 10));
 	gui.add(backgroundColor.setup("Couleur Arriere Plan", ofColor(220, 220, 220), ofColor(0, 0), ofColor(255, 255)));
+	gui.add(LineColor.setup("Couleur de Contour", ofColor(0, 0, 0), ofColor(0, 0), ofColor(255, 255)));
+	gui.add(FillColor.setup("Couleur des Formes", ofColor(220, 0, 0), ofColor(0, 0), ofColor(255, 255)));
 
 	//Initialisation du FrameBuffer
 	fbo.allocate(ofGetWidth(), ofGetHeight());
@@ -117,21 +119,6 @@ void ofApp::draw(){
 }
 
 //--------------------------------------------------------------
-void ofApp::keyPressed(int key){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::keyReleased(int key){
-	
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseMoved(int x, int y ){
-
-}
-
-//--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
 	if (nPts < 3000 && polygon == 4) {
 		pts[nPts].x = x;
@@ -163,77 +150,67 @@ void ofApp::mouseReleased(int x, int y, int button){
 	//Dessine une élipse
 	case 1:
 		ofFill();
-		ofSetColor(255, 0, 0);
+		ofSetColor(FillColor);
 		ofDrawEllipse(mouse_press_x + diameter_x / 2.0f, mouse_press_y + diameter_y / 2.0f, diameter_x, diameter_y);
 
 		//Ligne de contour
 		ofNoFill();
-		ofSetColor(0, 0, 0);
+		ofSetColor(LineColor);
 		ofDrawEllipse(mouse_press_x + diameter_x / 2.0f, mouse_press_y + diameter_y / 2.0f, diameter_x, diameter_y);
 		break;
 	//Dessine un triangle
 	case 2:
 		ofFill();
-		ofSetColor(255, 0, 0);
+		ofSetColor(FillColor);
 		ofTriangle(mouse_press_x, mouse_press_y, ofGetMouseX(), mouse_press_y, mouse_press_x + (diameter_x/2), ofGetMouseY());
 
 		//Ligne de contour
 		ofNoFill();
-		ofSetColor(0, 0, 0);
+		ofSetColor(LineColor);
 		ofTriangle(mouse_press_x, mouse_press_y, ofGetMouseX(), mouse_press_y, mouse_press_x + (diameter_x / 2), ofGetMouseY());
 		break;
 	//Dessine un rectangle
 	case 3:
 		ofFill();
-		ofSetColor(255, 0, 0);
+		ofSetColor(FillColor);
 		ofDrawRectangle(mouse_press_x, mouse_press_y, diameter_x, diameter_y);
 
 		//Ligne de contour
 		ofNoFill();
-		ofSetColor(0, 0, 0);
+		ofSetColor(LineColor);
 		ofDrawRectangle(mouse_press_x, mouse_press_y, diameter_x, diameter_y);
 		break;
 	//Dessine une ligne
 	case 5:
 		ofFill();
-		ofSetColor(255, 0, 0);
+		ofSetColor(FillColor);
 		ofDrawLine(mouse_press_x, mouse_press_y, ofGetMouseX(), ofGetMouseY());
 		break;
 	//Dessine un carre
 	case 6:
 		ofFill();
-		ofSetColor(255, 0, 0);
+		ofSetColor(FillColor);
 		ofDrawRectangle(mouse_press_x, mouse_press_y, minValue, minValue);
 
 		//Ligne de contour
 		ofNoFill();
-		ofSetColor(0, 0, 0);
+		ofSetColor(LineColor);
 		ofDrawRectangle(mouse_press_x, mouse_press_y, minValue, minValue);
 		break;
 	//Dessine un cercle
 	case 7:
 		ofFill();
-		ofSetColor(255, 0, 0);
+		ofSetColor(FillColor);
 		ofDrawEllipse(mouse_press_x + diameter_x / 2.0f, mouse_press_y + diameter_y / 2.0f, minValue, minValue);
 
 		//Ligne de contour
 		ofNoFill();
-		ofSetColor(0, 0, 0);
+		ofSetColor(LineColor);
 		ofDrawEllipse(mouse_press_x + diameter_x / 2.0f, mouse_press_y + diameter_y / 2.0f, minValue, minValue);
 		break;
 	}
 
 	fbo.end();
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseEntered(int x, int y){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseExited(int x, int y){
-
 }
 
 //--------------------------------------------------------------
