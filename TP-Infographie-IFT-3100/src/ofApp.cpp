@@ -19,6 +19,8 @@ void ofApp::setup(){
 	folder2->addButton("Triangle");
 	folder2->addButton("Dessin Libre");
 	folder2->addButton("Ligne");
+	folder2->addButton("Logo #1");
+	folder2->addButton("Logo #2");
 	folder2->addSlider("Ep. lignes contour", 1, 10, 5);
 	folder2->addColorPicker("Couleur background", ofColor::whiteSmoke);
 	folder2->addColorPicker("Couleur contour", ofColor::grey);
@@ -68,6 +70,12 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e){
 	}
 	else if (e.target->is("Cercle")) {
 		polygon = 7;
+	}
+	else if (e.target->is("Logo #1")) {
+		polygon = 8;
+	}
+	else if (e.target->is("Logo #2")) {
+		polygon = 9;
 	}
 }
 
@@ -221,6 +229,30 @@ void ofApp::mouseReleased(int x, int y, int button) {
 			ofSetColor(lineColor);
 			ofDrawEllipse(mouse_press_x + diameter_x / 2.0f, mouse_press_y + diameter_y / 2.0f, minValue, minValue);
 			break;
+			//Dessine le 1er logo
+		case 8:
+			ofNoFill();
+			ofSetColor(fillColor);
+			ofDrawEllipse(mouse_press_x + diameter_x / 2.0f, mouse_press_y + diameter_y / 2.0f, minValue, minValue);
+
+			ofDrawLine(mouse_press_x + diameter_x / 2.0f - (minValue / 2), mouse_press_y + diameter_y / 2.0f,
+				mouse_press_x + diameter_x / 2.0f + (minValue / 2), mouse_press_y + diameter_y / 2.0f);
+
+			ofDrawLine(mouse_press_x + diameter_x / 2.0f, mouse_press_y + diameter_y / 2.0f - (minValue / 2),
+				mouse_press_x + diameter_x / 2.0f, mouse_press_y + diameter_y / 2.0f + (minValue / 2));
+
+			break;
+
+			//Dessine le 2e logo
+		case 9:
+			ofNoFill();
+			ofSetColor(fillColor);
+			ofTriangle(mouse_press_x, mouse_press_y, ofGetMouseX(), mouse_press_y, mouse_press_x + (diameter_x / 2), ofGetMouseY());
+
+			ofDrawLine(mouse_press_x + diameter_x / 2.0f, mouse_press_y,
+				mouse_press_x + diameter_x / 2.0f, mouse_press_y + diameter_y);
+
+			ofDrawEllipse(mouse_press_x + diameter_x / 2.0f, mouse_press_y + diameter_y / 2.0f, minValue / 10, minValue / 10);
 	}
 	fbo.end();
 }
@@ -267,6 +299,21 @@ void ofApp::draw_cursor(float x, float y) const
 	case 7:
 		ofHideCursor();
 		ofCircle(x, y, 10);
+		break;
+
+	//Curseur du 1er logo
+	case 8:
+		ofHideCursor();
+		ofCircle(x, y, 10);
+		ofDrawLine(x - 10, y, x + 10, y);
+		ofDrawLine(x, y - 10, x, y + 10);
+
+		break;
+	//Curseur du 2e logo
+	case 9:
+		ofHideCursor();
+		ofTriangle(x - 10, y + 10, x + 10, y + 10, x, y - 10);
+		ofDrawLine(x, y - 10, x, y + 10);
 		break;
 	}
 }
