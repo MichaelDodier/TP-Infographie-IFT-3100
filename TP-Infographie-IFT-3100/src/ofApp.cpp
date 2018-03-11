@@ -6,12 +6,13 @@ void ofApp::setup(){
 	ofSetCircleResolution(60);
 
 	//Initiallisation du GUI
-	gui = new ofxDatGui(ofxDatGuiAnchor::TOP_LEFT);
+	gui = new ofxDatGui(ofxDatGuiAnchor::TOP_RIGHT);
 
 	//Ajouts des éléments du GUI
-	ofxDatGuiFolder* folder1 = gui->addFolder("Module 1", ofColor::blueSteel);
+	folder1 = gui->addFolder("Module 1", ofColor::blueSteel);
+	folder1->addButton("Importer une image");
 	gui->addBreak();
-	ofxDatGuiFolder* folder2 = gui->addFolder("Module 2", ofColor::greenYellow);
+	folder2 = gui->addFolder("Module 2", ofColor::greenYellow);
 	folder2->addButton("Elipse");
 	folder2->addButton("Cercle");
 	folder2->addButton("Carre");
@@ -19,18 +20,16 @@ void ofApp::setup(){
 	folder2->addButton("Triangle");
 	folder2->addButton("Dessin Libre");
 	folder2->addButton("Ligne");
-	folder2->addButton("Logo #1");
-	folder2->addButton("Logo #2");
 	folder2->addSlider("Ep. lignes contour", 1, 10, 5);
 	folder2->addColorPicker("Couleur background", ofColor::whiteSmoke);
 	folder2->addColorPicker("Couleur contour", ofColor::grey);
 	folder2->addColorPicker("Couleur formes", ofColor::black);
 	gui->addBreak();
-	ofxDatGuiFolder* folder3 = gui->addFolder("Module 3", ofColor::orangeRed);
+	folder3 = gui->addFolder("Module 3", ofColor::orangeRed);
 	gui->addBreak();
-	ofxDatGuiFolder* folder4 = gui->addFolder("Module 4", ofColor::thistle);
+	folder4 = gui->addFolder("Module 4", ofColor::thistle);
 	gui->addBreak();
-	ofxDatGuiFolder* folder5 = gui->addFolder("Module 5", ofColor::whiteSmoke);
+	folder5 = gui->addFolder("Module 5", ofColor::whiteSmoke);
 
 	//Assignation des variables
 	backgroundColor = ofColor::lightGray;
@@ -50,7 +49,18 @@ void ofApp::setup(){
 }
 
 void ofApp::onButtonEvent(ofxDatGuiButtonEvent e){
-	if (e.target->is("Elipse")) {
+	if (e.target->is("Importer une image")) {
+		ofFileDialogResult openFileResult = ofSystemLoadDialog("Select an image file");
+
+		if (openFileResult.bSuccess) {
+			ofLogVerbose("User selected a file");
+			processOpenFileSelection(openFileResult);
+		}
+		else {
+			ofLogVerbose("User hit cancel");
+		}
+	}
+	else if (e.target->is("Elipse")) {
 		polygon = 1;
 	}
 	else if (e.target->is("Triangle")){
@@ -70,12 +80,6 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e){
 	}
 	else if (e.target->is("Cercle")) {
 		polygon = 7;
-	}
-	else if (e.target->is("Logo #1")) {
-		polygon = 8;
-	}
-	else if (e.target->is("Logo #2")) {
-		polygon = 9;
 	}
 }
 
@@ -109,6 +113,14 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+
+	img.draw(0, 0);
+
+	//importe une image
+	for (unsigned int i = 0; i<loadedImages.size(); i++) {
+		loadedImages[i].draw(0, 0);
+	}
+
 	//Change la couleur de Background
 	ofSetBackgroundColor(backgroundColor);
 
@@ -229,32 +241,62 @@ void ofApp::mouseReleased(int x, int y, int button) {
 			ofSetColor(lineColor);
 			ofDrawEllipse(mouse_press_x + diameter_x / 2.0f, mouse_press_y + diameter_y / 2.0f, minValue, minValue);
 			break;
-			//Dessine le 1er logo
-		case 8:
-			ofNoFill();
-			ofSetColor(fillColor);
-			ofDrawEllipse(mouse_press_x + diameter_x / 2.0f, mouse_press_y + diameter_y / 2.0f, minValue, minValue);
-
-			ofDrawLine(mouse_press_x + diameter_x / 2.0f - (minValue / 2), mouse_press_y + diameter_y / 2.0f,
-				mouse_press_x + diameter_x / 2.0f + (minValue / 2), mouse_press_y + diameter_y / 2.0f);
-
-			ofDrawLine(mouse_press_x + diameter_x / 2.0f, mouse_press_y + diameter_y / 2.0f - (minValue / 2),
-				mouse_press_x + diameter_x / 2.0f, mouse_press_y + diameter_y / 2.0f + (minValue / 2));
-
-			break;
-
-			//Dessine le 2e logo
-		case 9:
-			ofNoFill();
-			ofSetColor(fillColor);
-			ofTriangle(mouse_press_x, mouse_press_y, ofGetMouseX(), mouse_press_y, mouse_press_x + (diameter_x / 2), ofGetMouseY());
-
-			ofDrawLine(mouse_press_x + diameter_x / 2.0f, mouse_press_y,
-				mouse_press_x + diameter_x / 2.0f, mouse_press_y + diameter_y);
-
-			ofDrawEllipse(mouse_press_x + diameter_x / 2.0f, mouse_press_y + diameter_y / 2.0f, minValue / 10, minValue / 10);
 	}
 	fbo.end();
+}
+
+bool sortColorFunction(ofColor i, ofColor j) {
+	return (i.getBrightness()<j.getBrightness());
+}
+
+// Fonction qui ouvre une image
+void ofApp::processOpenFileSelection(ofFileDialogResult openFileResult) {
+
+	ofFile file(openFileResult.getPath());
+
+	if (file.exists()) {
+		//Limiting this example to one image so we delete previous ones
+		processedImages.clear();
+		loadedImages.clear();
+		string fileExtension = ofToUpper(file.getExtension());
+		//We only want images
+		if (fileExtension == "JPG" || fileExtension == "PNG") {
+			//Save the file extension to use when we save out
+			originalFileExtension = fileExtension;
+			//Load the selected image
+			ofImage image;
+			image.load(openFileResult.getPath());
+			if (image.getWidth()>ofGetWidth() || image.getHeight() > ofGetHeight())
+			{
+				image.resize(image.getWidth() / 2, image.getHeight() / 2);
+			}
+			loadedImages.push_back(image);
+			//Make some short variables 
+			int w = image.getWidth();
+			int h = image.getHeight();
+			//Make a new image to save manipulation by copying the source
+			ofImage processedImage = image;
+			//Walk through the pixels
+			for (int y = 0; y < h; y++) {
+				//Create a vector to store and sort the colors
+				vector<ofColor> colorsToSort;
+				for (int x = 0; x < w; x++) {
+					//Capture the colors for the row
+					ofColor color = image.getColor(x, y);
+					colorsToSort.push_back(color);
+				}
+				//Sort the colors for the row
+				sort(colorsToSort.begin(), colorsToSort.end(), sortColorFunction);
+				for (int x = 0; x < w; x++)
+				{
+					//Put the sorted colors back in the new image
+					processedImage.setColor(x, y, colorsToSort[x]);
+				}
+			}
+			//Store the processed image
+			processedImages.push_back(processedImage);
+		}
+	}
 }
 
 // Fonction qui dessine un curseur
@@ -299,21 +341,6 @@ void ofApp::draw_cursor(float x, float y) const
 	case 7:
 		ofHideCursor();
 		ofCircle(x, y, 10);
-		break;
-
-	//Curseur du 1er logo
-	case 8:
-		ofHideCursor();
-		ofCircle(x, y, 10);
-		ofDrawLine(x - 10, y, x + 10, y);
-		ofDrawLine(x, y - 10, x, y + 10);
-
-		break;
-	//Curseur du 2e logo
-	case 9:
-		ofHideCursor();
-		ofTriangle(x - 10, y + 10, x + 10, y + 10, x, y - 10);
-		ofDrawLine(x, y - 10, x, y + 10);
 		break;
 	}
 }
